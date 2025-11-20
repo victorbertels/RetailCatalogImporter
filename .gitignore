@@ -1,0 +1,36 @@
+# Environment variables
+.env
+.env.local
+
+# Streamlit secrets (never commit actual secrets)
+.streamlit/secrets.toml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+*.csv
+!requirements.txt
+
+# JSON output files (optional - uncomment if you don't want to commit these)
+# *.json
+
