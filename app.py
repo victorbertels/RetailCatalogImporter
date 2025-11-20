@@ -256,20 +256,25 @@ def main():
                                     continue
                                 
                                 subProducts = []
+                                added_product_ids = set()  # Track added product IDs to avoid duplicates
                                 
                                 add_log(f"      🔍 Looking up {len(plu_list)} PLUs...")
                                 found_count = 0
                                 for plu in plu_list:
                                     product_id = findProductIdbyPlu(all_products, plu)
-                                    if product_id:
+                                    if product_id and product_id not in added_product_ids:
                                         subProducts.append(product_id)
+                                        added_product_ids.add(product_id)
                                         found_count += 1
                                 
-                                if subProducts:
-                                    add_log(f"      ✓ Found {found_count}/{len(plu_list)} products")
-                                    patchSubCategory(new_sub_category_id, subProducts, etag)
-                                    results["products_added"] += len(subProducts)
-                                    add_log(f"      ✓ Added {len(subProducts)} products to subcategory")
+                                # Remove duplicates as a safety measure (preserve order)
+                                unique_subProducts = list(dict.fromkeys(subProducts))
+                                
+                                if unique_subProducts:
+                                    add_log(f"      ✓ Found {len(unique_subProducts)} unique products from {len(plu_list)} PLUs")
+                                    patchSubCategory(new_sub_category_id, unique_subProducts, etag)
+                                    results["products_added"] += len(unique_subProducts)
+                                    add_log(f"      ✓ Added {len(unique_subProducts)} unique products to subcategory")
                                 else:
                                     add_log(f"      ⚠ No products found for {len(plu_list)} PLUs")
                                 

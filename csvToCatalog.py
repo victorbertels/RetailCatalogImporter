@@ -189,14 +189,24 @@ def getEtag(subCategoryId, retry_count=3, delay=0.5):
 
 
 def patchSubCategory(subCategoryId, subProducts, etag):
+    # Remove duplicates from subProducts list while preserving order
+    unique_subProducts = list(dict.fromkeys(subProducts))
+    
     headers = {
         'Authorization': f'Bearer {token}',
         'If-Match': etag
     }
+    
     url = f"https://api.deliverect.io/channelCategories/{subCategoryId}"
-    payload = {"subProducts": subProducts}
+    payload = {"subProducts": unique_subProducts}
     response = requests.patch(url = url, headers=headers, json=payload)
-    print(f"      ✓ Added {len(subProducts)} products to subcategory")
+    
+    # Show message if duplicates were removed
+    if len(subProducts) != len(unique_subProducts):
+        removed_count = len(subProducts) - len(unique_subProducts)
+        print(f"      ✓ Added {len(unique_subProducts)} unique products to subcategory (removed {removed_count} duplicates)")
+    else:
+        print(f"      ✓ Added {len(unique_subProducts)} products to subcategory")
 
 if __name__ == "__main__":
     print("🚀 Starting catalog import process...\n")
