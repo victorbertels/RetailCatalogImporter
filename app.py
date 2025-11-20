@@ -33,7 +33,8 @@ def main():
     )
     
     st.title("📦 Catalog Importer")
-    st.markdown("Upload a csv and I will create a catalog for you.")
+    st.markdown("Upload a csv and I will create a catalog structure for you.")
+    st.markdown("This assumes the products you want to add in there already exist in the account.")
     st.markdown("Expected headers in the CSV file: **Category 1, Category 2, Plu**")
     
     # Download template CSV
