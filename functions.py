@@ -7,8 +7,8 @@ def getToken():
     # Try to get credentials from Streamlit secrets first (for Streamlit Cloud)
     try:
         import streamlit as st
-        client_id = st.secrets.get("DELIVERECT_CLIENT_ID")
-        client_secret = st.secrets.get("DELIVERECT_CLIENT_SECRET")
+        client_id = st.secrets.get("CLIENT_ID")
+        client_secret = st.secrets.get("CLIENT_SECRET")
     except:
         # Fall back to .env file for local development
         from dotenv import load_dotenv
