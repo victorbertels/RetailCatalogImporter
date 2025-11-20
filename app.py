@@ -33,7 +33,7 @@ def main():
     )
     
     st.title("📦 Catalog Importer")
-    st.markdown("Import your catalog structure from CSV to Deliverect")
+    st.markdown("Upload a csv and I will create a catalog for you.")
     st.markdown("Expected headers in the CSV file: Category 1, Category 2, Plu")
     
     # Input fields
