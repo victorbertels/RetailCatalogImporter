@@ -83,7 +83,8 @@ def createSubCategories(accountId, catalogId, categoryId, subCategoryName):
     url = f"https://api.deliverect.io/catalog/accounts/{accountId}/catalog/{catalogId}/category/{categoryId}/subCategory"
     payload = {"name": subCategoryName, "description": "", "menu": catalogId, "account": accountId}
     response = requests.post(url = url, headers=headers, json=payload)
-    subcategory_id = response.json()["id"]
+    response_data = response.json()
+    subcategory_id = response_data["id"]
     print(f"    ✓ Created subcategory: '{subCategoryName}' ")
     return subcategory_id
 
@@ -138,13 +139,53 @@ def findProductIdbyPlu(products, plu):
             return product["_id"]
     return None
 
-def getEtag(subCategoryId):
+def getEtag(subCategoryId, retry_count=3, delay=0.5):
+    """
+    Get etag for a subcategory with retry logic.
+    Sometimes the etag might not be immediately available after creation.
+    """
+    import time
+    
     headers = {
         'Authorization': f'Bearer {token}'
     }
     url = f"https://api.deliverect.io/channelCategories/{subCategoryId}"
-    response = requests.get(url = url, headers=headers).json()
-    return response["_etag"]
+    
+    for attempt in range(retry_count):
+        try:
+            response = requests.get(url=url, headers=headers)
+            
+            # Check if request was successful
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            # Check if _etag exists in response
+            if "_etag" in data:
+                return data["_etag"]
+            elif "etag" in data:
+                return data["etag"]
+            elif "_ETag" in data:
+                return data["_ETag"]
+            else:
+                # If this is not the last attempt, wait and retry
+                if attempt < retry_count - 1:
+                    time.sleep(delay)
+                    continue
+                else:
+                    raise KeyError(
+                        f"_etag not found in response for subcategory {subCategoryId}. "
+                        f"Response keys: {list(data.keys())}. "
+                        f"Full response: {data}"
+                    )
+        except requests.exceptions.HTTPError as e:
+            if attempt < retry_count - 1:
+                time.sleep(delay)
+                continue
+            else:
+                raise Exception(f"Failed to get etag after {retry_count} attempts: {str(e)}")
+    
+    raise Exception(f"Failed to get etag for subcategory {subCategoryId} after {retry_count} attempts")
 
 
 def patchSubCategory(subCategoryId, subProducts, etag):

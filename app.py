@@ -34,7 +34,25 @@ def main():
     
     st.title("📦 Catalog Importer")
     st.markdown("Upload a csv and I will create a catalog for you.")
-    st.markdown("Expected headers in the CSV file: Category 1, Category 2, Plu")
+    st.markdown("Expected headers in the CSV file: **Category 1, Category 2, Plu**")
+    
+    # Download template CSV
+    try:
+        with open("template.csv", "r", encoding="utf-8") as template_file:
+            template_data = template_file.read()
+            st.download_button(
+                label="📥 Download CSV Template",
+                data=template_data,
+                file_name="catalog_template.csv",
+                mime="text/csv",
+                help="Download a template CSV file to see the expected structure with example data"
+            )
+    except FileNotFoundError:
+        st.warning("Template CSV file not found")
+    except Exception as e:
+        st.error(f"Error loading template: {str(e)}")
+    
+    st.markdown("---")
     
     # Input fields
     account_id = st.text_input(
@@ -222,7 +240,19 @@ def main():
                                 results["subcategories_created"] += 1
                                 add_log(f"    ✓ Created subcategory: '{category2_name}'")
                                 
-                                etag = getEtag(new_sub_category_id)
+                                # Get etag for the subcategory
+                                try:
+                                    etag = getEtag(new_sub_category_id)
+                                    add_log(f"      ✓ Retrieved etag for subcategory")
+                                except Exception as etag_error:
+                                    error_msg = f"Failed to get etag for subcategory '{category2_name}': {str(etag_error)}"
+                                    add_log(f"      ❌ {error_msg}")
+                                    results["errors"].append(error_msg)
+                                    # Skip adding products if we can't get etag
+                                    current_progress += progress_increment
+                                    progress_bar.progress(min(int(current_progress), 90))
+                                    continue
+                                
                                 subProducts = []
                                 
                                 add_log(f"      🔍 Looking up {len(plu_list)} PLUs...")
