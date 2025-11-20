@@ -1,4 +1,4 @@
-# Catalog Importer voor Joy
+# Catalog Importer
 
 A Streamlit application to import catalog structures from CSV files to Deliverect.
 
