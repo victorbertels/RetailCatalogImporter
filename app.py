@@ -32,7 +32,7 @@ def main():
         layout="centered"
     )
     
-    st.title("📦 Catalog Importer voor Joy")
+    st.title("📦 Catalog Importer")
     st.markdown("Import your catalog structure from CSV to Deliverect")
     st.markdown("Expected headers in the CSV file: Category 1, Category 2, Plu")
     
